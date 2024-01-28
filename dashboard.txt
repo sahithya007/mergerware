@@ -1,0 +1,54 @@
+// Importing required packages
+import { Meteor } from 'meteor/meteor';
+import { Mongo } from 'meteor/mongo';
+import { check } from 'meteor/check';
+
+// Creating collections
+export const Users = new Mongo.Collection('users');
+export const Loans = new Mongo.Collection('loans');
+
+if (Meteor.isServer) {
+  // Publishing collections
+  Meteor.publish('users', function usersPublication() {
+    return Users.find();
+  });
+
+  Meteor.publish('loans', function loansPublication() {
+    return Loans.find();
+  });
+}
+
+// Defining methods
+Meteor.methods({
+  'users.insert'(email, role) {
+    check(email, String);
+    check(role, String);
+
+    // Insert user into the collection
+    Users.insert({
+      email,
+      role,
+      createdAt: new Date(),
+    });
+  },
+
+  'loans.request'(userId, amount) {
+    check(userId, String);
+    check(amount, Number);
+
+    // Insert loan request into the collection
+    Loans.insert({
+      userId,
+      amount,
+      status: 'requested',
+      createdAt: new Date(),
+    });
+  },
+
+  'loans.pay'(loanId) {
+    check(loanId, String);
+
+    // Update loan status
+    Loans.update(loanId, { $set: { status: 'paid' } });
+  },
+});

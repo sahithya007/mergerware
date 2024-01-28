@@ -1,0 +1,35 @@
+// Defining methods
+Meteor.methods({
+  'lender.payLoan'(loanId) {
+    // Check if the input is of correct type
+    check(loanId, String);
+
+    // Fetch the loan
+    const loan = Loans.findOne(loanId);
+    if (!loan) {
+      throw new Meteor.Error('loan-not-found');
+    }
+
+    // Check if the user is a lender
+    const user = Users.findOne(this.userId);
+    if (!user || user.role !== 'lender') {
+      throw new Meteor.Error('not-authorized');
+    }
+
+    // Update loan status to 'paid'
+    Loans.update(loanId, { $set: { status: 'paid', lenderId: this.userId } });
+  },
+
+  'lender.viewPastPayments'() {
+    // Check if the user is a lender
+    const user = Users.findOne(this.userId);
+    if (!user || user.role !== 'lender') {
+      throw new Meteor.Error('not-authorized');
+    }
+
+    // Fetch the lender's past payments
+    const pastPayments = Loans.find({ lenderId: this.userId, status: 'paid' }).fetch();
+
+    return pastPayments;
+  },
+});

@@ -1,0 +1,21 @@
+// Defining methods
+Meteor.methods({
+  'users.register'(email, role) {
+    // Check if the inputs are of correct type
+    check(email, String);
+    check(role, String);
+
+    // Check if the role is valid
+    const validRoles = ['admin', 'borrower', 'lender'];
+    if (!validRoles.includes(role)) {
+      throw new Meteor.Error('invalid-role');
+    }
+
+    // Insert user into the collection
+    Users.insert({
+      email,
+      role,
+      createdAt: new Date(), // current date and time
+    });
+  },
+});

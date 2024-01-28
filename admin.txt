@@ -1,0 +1,15 @@
+// Defining methods
+Meteor.methods({
+  'admin.viewAllTransactions'() {
+    // Check if the user is an admin
+    const user = Users.findOne(this.userId);
+    if (!user || user.role !== 'admin') {
+      throw new Meteor.Error('not-authorized');
+    }
+
+    // Fetch all transactions
+    const transactions = Loans.find().fetch();
+
+    return transactions;
+  },
+});
